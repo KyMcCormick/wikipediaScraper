@@ -1,0 +1,97 @@
+Wikipedia Scraper Project:
+
+this is a plain text representation of what will eventually go on the website.
+
+12/11
+
+Starting this project, I have a couple of goals in mind. Firstly, I want to 
+learn more about certain python modules and their uses, beautifulsoup and requests
+specifically. Secondly, I want to learn more about the structure behind our pages
+and any automasation that can be done there. As any self respecting computer scientist,
+I am not looking to create more work when less work works well. I also want to tie this
+program to my computer's startup. I've worked in this general area before of interfacing
+with the os a little, mostly in the context of install scripts and process/package management
+in Python, with some fun with iptables and firewall rules thrown in, but never directly
+doing it with a script outside of something like an ansibled machine. With this in mind
+I came in with the following broad questions:
+
+	1. How does web scraping work?
+	2. How can I make this as automated as possible?
+	3. What tools and processes are involved?
+	4. What steps can I take to efficiently make my script generic?
+
+As we continue, these broad questions will be broken down, with each sub question
+labled 1.a, 1.b, 2.a, etc.
+
+12/13
+
+From these questions and doing a little research reading python documentation, we can break
+these questions down a little. Let's start with question 1, but first we need
+to define web scraping;
+
+1.a What is web scraping?
+
+Web Scraping is the act of extracting data from a site and then using
+that data in some way. Most commonly, this extraction is of plain html elements such as 
+prices, text, or list elements, however one can also extract metadata from pages. 
+
+This leads us to our next question. We've defined web scraping but this has left us with another topic to go define.
+This is a very common occurance in computer science, when we peel a layer of abstraction off, we then get more questions.
+
+1.b What structure is involved in a web page?
+
+<insert image of https://en.wikipedia.org/wiki/December_14> is one of the date
+pages on wikipedia, however, this information is practically useless for us, we want the 
+html. html, along with javascript and css, form the basis for every and all websites on the internet.
+html provides the structure and content, css the layout and pretification, and javascript interactivity
+and functionality. The easiest way to look at the html is to inspect element. Doing so we see this
+<insert inspect element image>. 
+
+
+This is great, and a lot of information, and if we are to do anything with this we are going to need to get
+it to our program, which, is a good question. How does some program that lives on my computer and github know about some
+website that may be hosted on a server halfway across the world?
+
+2/3.a How do we get this info to our program?
+
+This is where requests come in. http is a lovely little thing we take for granted and most cs students just overlook, but
+using the requests module, which is built on top of older http libraries, we can get all the info we need. The request module
+is so popular, there is currently a push to get it included in python by default. We can create a request object that gets
+the page for the current date. We'll come back to the question of the date later, but for now let's say it is hardcoded as 
+December_13 
+
+We do not (sadly) need to get into the weeds on how http works, but here is a simple explanation. 
+http allows us to communicate requests and responces between two places, call one a client, who requests, and a server,
+who responds. When we connect to some website, that site is really hosted somewhere on some webserver, 
+and through TCP and IP (transport and internet layers) we get there and have a connection. Great. http
+then allows for us to actually send a representation the current state of the site from the server to the client so we see
+all the pretty text and images and all the rest. When we do this with the request module, we are sending a GET request
+that will retrieve all the data aka html and css nonsense. Notably, we also want ensure the webpage we get is ok, so we check
+for status code 200, the ok signal that servers send the client after a successful GET.
+
+Now that we know it's possible to get the information we need, and a way to check that information is desired, let's think broad.
+Before coding anything, it is best practice to have some roadmap in place. I want this project to be sufficiently generic and
+have good design principles, so let's talk design.
+
+4.a What structurly do I expect to need in the code? 
+
+I know there are a couple of steps. Broadly, get date, get data, parse data, get a selection of events. This is before we even
+have to worry about making the script run every day or transfering the events we want to an html page on my site. We are just worried
+about the steps involved in getting the information. With that said, let's break it down:
+
+	1. getDate(): fairly simple, nearly all computers have clocks (or well, all if you count the clock unit). Getting
+		the date is relatively trivial, we just then need to concatenate the right form of it to "https://en.wikipedia.org/wiki/"
+	
+	2. getSiteData(): this is the big boy, main driver. Once we get the date, we can make the requester, send an GET request
+		and then, if we have a 200 response, begin to process
+
+	3. processData(): We need to parse the data we receive as html that way it is in a useable format instead of a long string
+		and then pull all text out of it, and work the document's sections. The wikipedia pages we are scraping are divided
+		into four sections; events, births, deaths, and holidays. Each of these parts are broken into three subparts,
+		pre1600, early modern period, and modern period. This logically means we should have another function.
+
+	4. processSection(): For each section, we can separate the subsections as lists of facts contained within. 
+	
+	5. getRandomEvents(): a simple function get random events from the subsections.
+
+This gives us a rough idea of the intitial tasks we will need.
