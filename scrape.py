@@ -26,10 +26,14 @@ def getDate():
 def getRandomEvents(event_list):
 	# returns a number of events from the current section
 
-	number_of_events = math.ceil(len(event_list) / 5)
 	random_events = []
 
-	for i in range(number_of_events):
+	if(len(event_list) < 3):
+		num_events = len(event_list)
+	else:
+		num_events = 3
+
+	for i in range(num_events):
 		rand = random.randint(0, len(event_list) - 1)
 		event = event_list[rand]
 		event_list.pop(rand)
@@ -58,24 +62,24 @@ def processSection(event_string):
 	modern = [i for i in modern if i]
 
 	events_chosen = events_chosen + getRandomEvents(pre1600) + getRandomEvents(early_modern) + getRandomEvents(modern)
-	print(events_chosen)
+	return events_chosen
 
 def processData(requestor):
 	# Beautiful soup is an html parser/interpreter. We use that to pull all text out of the site 
 	# and then check it into the sections we want from word x to word y where x and y are headers
+
+	todays_events = []
 
 	soup = BeautifulSoup(requestor.content, 'html.parser')
 	text = soup.get_text()
 
 	events = text.split("Events[edit]")[1].split("Births[edit]")[0]
 	births = text.split("Births[edit]")[1].split("Deaths[edit]")[0]
+	deaths = text.split("Deaths[edit]")[1].split("Holidays and observances[edit]")[0]
 
-	processSection(events)
-
-
-
-
-
+	todays_events = processSection(events)
+	print(todays_events)
+	
 def main():
 	getSiteData()
 

@@ -94,4 +94,48 @@ about the steps involved in getting the information. With that said, let's break
 	
 	5. getRandomEvents(): a simple function get random events from the subsections.
 
-This gives us a rough idea of the intitial tasks we will need.
+12/14
+
+This gives us a rough idea of the intitial tasks we will need. With this, we now can begin coding. Here is our initial program.
+Note  the imports at the top. Of these, requests is needed for the http requests and bs4 from BeautifulSoup is needed for parsing
+the html.
+
+let's start with getSiteData(): first since this function is the entry point of our program. Firstly, we know we need to get
+the current date, so call the getDate() function, and execute a request, afterwhich we check the response code. After this, we should
+be good to process. The function getDate is fairly simple to implement as well. 
+
+Next in the pipeline is processData(requestor). Remember that knowing the structure of the website being scraped is imperative.
+With this in mind, we have a really important question.
+
+4.b What elements of the html code or website text/structure can be used to deliminate sections?
+
+There are no single elements we can split on to get out the sections we want, looking for [edit] would pull every header and subheader
+while looking for things like the headers would mean if they are ever repeated our code breaks. Luckily, we can put the two together after
+realising that all headers are formatted Header[edit], which is not a word that can repeat anywhere. This gives us a great way to get the text
+between the headers. We will use a similar trick to split up the subheaders as well. 
+
+Now with that question answers, the coding itself is fairly self explanitory. We create a list to hold the events we will select, use our html parser
+to parse the date and pull out all the text, and then perform the splits. This leaves us to process the sections. For the sake of 
+simplicity, we will start by processing only on section.
+
+Next is processSection(event_string), and let's start out with some data sanitisation. Wikipedia has a large number of footers that are denoted
+within the text itself. This is something I do not want or need to see, so we can remove them all. We can do so quite nicely with regular expressions.
+Regular expressions are a powerful tool for data processing and computing in general when applied in their role as operators on regular languages. 
+the regular expression we care about looks for all cases of [x] where x is some integer. As I alluded to earlier, we also split over [edit] to get the 
+subsections, however this gives us the subsections as one long string each. 
+
+Because of the fact that each are now string representations of the li html elements effectively, we can split these on newlines and include all but the last
+element to ignore the next sections's header. We also can remove any blank lines wikipedia adds in for formatting using list comprehension, and finish off
+by getting our random events. 
+
+Getting our random events gives us another interesting question. From a design perspective, and aethstetic one, we do not want to grab too many events, and there
+is no way of telling until we get here how many events there are. 
+
+4.c How can we get a consistent random selection for all sections, not just one?
+
+We know that there are 10 sections we care about total, so let's take three events from each.
+If a section, has less than three, let's just take the whole section. This really will only apply on some days where we have a particularly small pre1600 section
+With that structure in mind now, we can code.
+
+Alright! Great work! We now have everything in place to get our events. Next will be really interesting. We need to incorporate some way
+of taking these events and embedding them into an html page on the website. 
