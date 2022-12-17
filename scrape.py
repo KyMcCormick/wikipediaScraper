@@ -8,6 +8,7 @@ from datetime import date
 def getSiteData():
 	# main driver. gets the site data using an html request. we then feed to process.
 
+	facts_to_add = []
 	current_date = getDate()
 	requestor = requests.get(current_date)
 
@@ -15,7 +16,8 @@ def getSiteData():
 	if(requestor.status_code != 200):
 		raise Exception("error creating a connection: Code " + requestor.status_code)
 		
-	processData(requestor)
+	facts_to_add = processData(requestor)
+	return facts_to_add
 
 def getDate():
 	today = date.today()
@@ -61,7 +63,7 @@ def processSection(event_string):
 	modern = eras[3].split("\n")[:-1]
 	modern = [i for i in modern if i]
 
-	events_chosen = events_chosen + getRandomEvents(pre1600) + getRandomEvents(early_modern) + getRandomEvents(modern)
+	events_chosen = events_chosen + getRandomEvents(pre1600) +  getRandomEvents(early_modern) + getRandomEvents(modern)
 	return events_chosen
 
 def processData(requestor):
@@ -78,10 +80,30 @@ def processData(requestor):
 	deaths = text.split("Deaths[edit]")[1].split("Holidays and observances[edit]")[0]
 
 	todays_events = processSection(events)
-	print(todays_events)
+	return todays_events
 	
 def main():
-	getSiteData()
+	
+	html_path = "../../resumeSite/resumeSite/today.html"
+	facts_to_add = getSiteData()
+	html = BeautifulSoup(open(html_path), 'html.parser')
+	li_elements = html.find_all('li')
 
+	print(facts_to_add)
+
+	for i in range(len(facts_to_add)):
+		li_elements[i].string = facts_to_add[i]
+
+	#for subsection in range(9):
+		#facts_html = '\n'.join(['<li>'.rjust(8) + fact + '</li>' for fact in facts_to_add[subsection]])
+		#print(facts_html + '\n')
+
+
+	print(html.prettify())
+
+	
+	with open(html_path, "w", encoding = 'utf-8') as file:# prettify the soup object and convert it into a string
+		file.write(str(html.prettify()))
+	
 if __name__ == "__main__":
 	main()
